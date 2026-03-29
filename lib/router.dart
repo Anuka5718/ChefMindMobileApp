@@ -24,8 +24,8 @@ final appRouter = GoRouter(
   redirect: (context, state) {
     final isLoggedIn = FirebaseAuth.instance.currentUser != null;
     final isSplash = state.matchedLocation == '/splash';
-    final onAuthPage = state.matchedLocation == '/login' ||
-        state.matchedLocation == '/signup';
+    final onAuthPage =
+        state.matchedLocation == '/login' || state.matchedLocation == '/signup';
 
     if (isSplash) return null;
     if (!isLoggedIn && !onAuthPage) return '/login';
@@ -37,8 +37,11 @@ final appRouter = GoRouter(
     GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
     GoRoute(path: '/signup', builder: (_, __) => const SignUpScreen()),
     GoRoute(path: '/home', builder: (_, __) => const HomeScreen()),
-    GoRoute(path: '/ingredients', builder: (_, __) => const IngredientsScreen()),
-    GoRoute(path: '/add-ingredient', builder: (_, __) => const AddIngredientScreen()),
+    GoRoute(
+        path: '/ingredients', builder: (_, __) => const IngredientsScreen()),
+    GoRoute(
+        path: '/add-ingredient',
+        builder: (_, __) => const AddIngredientScreen()),
     GoRoute(path: '/recipes', builder: (_, __) => const RecipeScreen()),
     GoRoute(
       path: '/recipe-detail',
@@ -52,14 +55,14 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/edit-profile',
       builder: (_, __) => const EditProfileScreen(),
-      ),
+    ),
     GoRoute(
       path: '/notifications',
       builder: (_, __) => const NotificationsScreen(),
-      ),
+    ),
     GoRoute(
       path: '/dietary-preferences',
       builder: (_, __) => const DietaryPreferencesScreen(),
-      ),
+    ),
   ],
 );
