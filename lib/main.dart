@@ -1,65 +1,40 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'firebase_options.dart';
-import 'router.dart';
-import 'core/theme/app_theme.dart';
-import 'core/theme/theme_provider.dart';
-import 'services/remote_config_service.dart';
+import 'package:flutter/foundation.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+class RemoteConfigService {
+  final FirebaseRemoteConfig _rc = FirebaseRemoteConfig.instance;
 
-  // Lock orientation to portrait
-  await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
+  Future<void> initialise() async {
+    await _rc.setConfigSettings(
+      RemoteConfigSettings(
+        fetchTimeout: const Duration(seconds: 15),
+        minimumFetchInterval: Duration.zero, // no caching (dev)
+      ),
+    );
 
-  // Set status bar style
-  SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.dark,
-    ),
-  );
+    // ✅ Default values
+    await _rc.setDefaults({
+      'gemini_api_key': '',
+      'huggingface_api_key': '',
+    });
 
-  // Initialize Firebase
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+    // ✅ Fetch from Firebase
+    await _rc.fetchAndActivate();
 
-  // Initialize Remote Config (fetches Gemini API key)
-  final remoteConfig = RemoteConfigService();
-  await remoteConfig.initialise();
-
-  runApp(
-    const ProviderScope(
-      child: ChefMindApp(),
-    ),
-  );
-}
-
-class ChefMindApp extends ConsumerWidget {
-  const ChefMindApp({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // Watch theme mode — rebuilds when toggled
-    final themeMode = ref.watch(themeProvider);
-
-    return MaterialApp.router(
-      title: 'ChefMind',
-      debugShowCheckedModeBanner: false,
-
-      // Light & dark themes
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: themeMode,
-
-      // Router
-      routerConfig: appRouter,
+    // ✅ Debug logs
+    debugPrint("HF RAW VALUE: ${_rc.getString('huggingface_api_key')}");
+    debugPrint(
+      "HF STATUS: ${huggingFaceApiKey.isEmpty ? "MISSING" : "OK"}",
     );
   }
+
+  // ✅ Getters
+  String get geminiApiKey => _rc.getString('gemini_api_key');
+
+  String get huggingFaceApiKey => _rc.getString('huggingface_api_key');
 }
+
+// ✅ Riverpod provider
+final remoteConfigServiceProvider =
+    Provider<RemoteConfigService>((ref) => RemoteConfigService());

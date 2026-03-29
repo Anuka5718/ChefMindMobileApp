@@ -6,7 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../core/constants/app_colors.dart';
 import '../ingredients/ingredient_repository.dart';
 import 'recipe_model.dart';
-import 'recipe_service.dart';
+import 'huggingface_recipe_service.dart';
 
 class RecipeScreen extends ConsumerStatefulWidget {
   const RecipeScreen({super.key});
@@ -16,12 +16,18 @@ class RecipeScreen extends ConsumerStatefulWidget {
 }
 
 class _RecipeScreenState extends ConsumerState<RecipeScreen> {
+  String _dietaryType = 'None';
+  List<String> _allergies = [];
   List<Recipe>? _recipes;
   bool _loading = false;
   String? _error;
 
   Future<void> _generate() async {
-    setState(() { _loading = true; _error = null; _recipes = null; });
+    setState(() {
+      _loading = true;
+      _error = null;
+      _recipes = null;
+    });
     try {
       final ingredients = ref.read(ingredientsProvider).valueOrNull ?? [];
       if (ingredients.isEmpty) {
@@ -31,14 +37,16 @@ class _RecipeScreenState extends ConsumerState<RecipeScreen> {
         });
         return;
       }
-      final recipes = await ref.read(recipeServiceProvider).generateRecipes(
-        ingredients: ingredients,
-        dietaryType: 'omnivore',
-        allergies: [],
-      );
+      final recipes =
+          await ref.read(huggingFaceRecipeServiceProvider).generateRecipes(
+                ingredients: ingredients,
+                dietaryType: _dietaryType,
+                allergies: _allergies,
+              );
       setState(() => _recipes = recipes);
     } catch (e) {
-      setState(() => _error = 'Could not generate recipes. Please try again.\n$e');
+      setState(
+          () => _error = 'Could not generate recipes. Please try again.\n$e');
     } finally {
       setState(() => _loading = false);
     }
@@ -202,9 +210,9 @@ class _RecipeScreenState extends ConsumerState<RecipeScreen> {
                       ),
                     ],
                   ).animate().fadeIn().scale(
-                    begin: const Offset(0.9, 0.9),
-                    end: const Offset(1.0, 1.0),
-                  ),
+                        begin: const Offset(0.9, 0.9),
+                        end: const Offset(1.0, 1.0),
+                      ),
                 ),
               ),
 
@@ -276,13 +284,13 @@ class _RecipeCard extends StatelessWidget {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 10, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
                     color: _difficultyColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                        color: _difficultyColor.withOpacity(0.3)),
+                    border:
+                        Border.all(color: _difficultyColor.withOpacity(0.3)),
                   ),
                   child: Text(
                     recipe.difficulty,
@@ -298,7 +306,8 @@ class _RecipeCard extends StatelessWidget {
             const SizedBox(height: 10),
             Row(
               children: [
-                const Icon(Icons.timer, size: 14, color: AppColors.textSecondaryLight),
+                const Icon(Icons.timer,
+                    size: 14, color: AppColors.textSecondaryLight),
                 const SizedBox(width: 4),
                 Text(
                   '${recipe.cookTimeMins} min',

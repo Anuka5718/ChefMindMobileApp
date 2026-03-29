@@ -1,35 +1,40 @@
 import 'package:firebase_remote_config/firebase_remote_config.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/foundation.dart';
 
 class RemoteConfigService {
-  final _rc = FirebaseRemoteConfig.instance;
+  final FirebaseRemoteConfig _rc = FirebaseRemoteConfig.instance;
 
   Future<void> initialise() async {
     await _rc.setConfigSettings(
       RemoteConfigSettings(
         fetchTimeout: const Duration(seconds: 15),
-        minimumFetchInterval: const Duration(hours: 1),
+        minimumFetchInterval: Duration.zero, // no caching (dev)
       ),
     );
 
-    // Default value in case fetch fails
+    // ✅ Default values
     await _rc.setDefaults({
       'gemini_api_key': '',
+      'huggingface_api_key': '',
     });
 
-    try {
-      await _rc.fetchAndActivate();
-    } catch (e) {
-      // Use cached/default values if fetch fails
-      debugPrint('Remote Config fetch failed: $e');
-    }
+    // ✅ Fetch from Firebase
+    await _rc.fetchAndActivate();
+
+    // ✅ Debug logs
+    debugPrint("HF RAW VALUE: ${_rc.getString('huggingface_api_key')}");
+    debugPrint(
+      "HF STATUS: ${huggingFaceApiKey.isEmpty ? "MISSING" : "OK"}",
+    );
   }
 
-  // Returns the Gemini API key
+  // ✅ Getters
   String get geminiApiKey => _rc.getString('gemini_api_key');
+
+  String get huggingFaceApiKey => _rc.getString('huggingface_api_key');
 }
 
-final remoteConfigServiceProvider = Provider<RemoteConfigService>(
-  (ref) => RemoteConfigService(),
-);
+// ✅ Riverpod provider
+final remoteConfigServiceProvider =
+    Provider<RemoteConfigService>((ref) => RemoteConfigService());
