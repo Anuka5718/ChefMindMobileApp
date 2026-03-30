@@ -21,6 +21,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   final _confirmCtrl = TextEditingController();
   bool _loading = false;
   bool _obscurePassword = true;
+  
   bool _obscureConfirm = true;
   String? _error;
   String _dietaryType = 'omnivore';
