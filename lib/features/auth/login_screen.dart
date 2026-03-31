@@ -167,6 +167,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   if (_error != null)
                     Container(
                       padding: const EdgeInsets.all(12),
+                      
                       margin: const EdgeInsets.only(bottom: 16),
                       decoration: BoxDecoration(
                         color: AppColors.expiryRed.withOpacity(0.1),
