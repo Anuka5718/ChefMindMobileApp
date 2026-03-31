@@ -26,6 +26,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   String? _error;
   String _dietaryType = 'omnivore';
   final List<String> _allergies = [];
+  
 
   @override
   void dispose() {
