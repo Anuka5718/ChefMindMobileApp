@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "844516950328",
+    "project_id": "chefmindmobileapp",
+    "storage_bucket": "chefmindmobileapp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:844516950328:android:3d3bf569e43002352501cd",
+        "android_client_info": {
+          "package_name": "com.example.chefmind"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDPsw1_Hg9ex8XukjnUz-0cBaz26SqYcq8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
