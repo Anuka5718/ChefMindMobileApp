@@ -24,9 +24,6 @@ dependencies:
   # Navigation
   go_router: ^14.2.0
 
-  # AI - Gemini
-  google_generative_ai: ^0.4.3
-
   # UI & Animations
   flutter_animate: ^4.5.0
   google_fonts: ^6.2.1
@@ -43,6 +40,12 @@ dependencies:
 
   # Image
   cached_network_image: ^3.3.1
+  http: ^1.6.0
+  image_picker: ^1.1.2
+
+  # Utilities
+  timezone: ^0.9.4            
+  permission_handler: ^11.3.1
 
 dev_dependencies:
   flutter_test:

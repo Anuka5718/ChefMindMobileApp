@@ -4,13 +4,22 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/constants/app_colors.dart';
-import '../auth/auth_provider.dart';
+import 'package:chefmind/features/auth/auth_provider.dart';
 
-class ProfileScreen extends ConsumerWidget {
+class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+  Future<void> _logout() async {
+  await ref.read(authServiceProvider).logout();
+}
+
+  @override
+  Widget build(BuildContext context) {
     final authState = ref.watch(authStateProvider);
     final user = authState.valueOrNull;
 
@@ -31,7 +40,6 @@ class ProfileScreen extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          // Avatar + email
           Center(
             child: Column(
               children: [
@@ -51,8 +59,7 @@ class ProfileScreen extends ConsumerWidget {
                       ),
                     ],
                   ),
-                  child: const Icon(Icons.person,
-                      size: 44, color: Colors.white),
+                  child: const Icon(Icons.person, size: 44, color: Colors.white),
                 ),
                 const SizedBox(height: 14),
                 Text(
@@ -75,12 +82,11 @@ class ProfileScreen extends ConsumerWidget {
 
           const SizedBox(height: 32),
 
-          // Profile options
           _ProfileOption(
             icon: Icons.person_outline,
             title: 'Edit Profile',
             subtitle: 'Update your name and photo',
-            onTap: () {},
+            onTap: () => context.push('/edit-profile'),
           ),
           _ProfileOption(
             icon: Icons.restaurant_menu,
@@ -92,7 +98,7 @@ class ProfileScreen extends ConsumerWidget {
             icon: Icons.notifications_outlined,
             title: 'Notifications',
             subtitle: 'Manage expiry alerts',
-            onTap: () {},
+            onTap: () => context.push('/notifications'),
           ),
           _ProfileOption(
             icon: Icons.settings_outlined,
@@ -103,12 +109,8 @@ class ProfileScreen extends ConsumerWidget {
 
           const SizedBox(height: 24),
 
-          // Logout button
           ElevatedButton.icon(
-            onPressed: () async {
-              await ref.read(authServiceProvider).logout();
-              if (context.mounted) context.go('/login');
-            },
+            onPressed: _logout,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.expiryRed.withOpacity(0.1),
               foregroundColor: AppColors.expiryRed,
@@ -116,8 +118,7 @@ class ProfileScreen extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14),
-                side: BorderSide(
-                    color: AppColors.expiryRed.withOpacity(0.3)),
+                side: BorderSide(color: AppColors.expiryRed.withOpacity(0.3)),
               ),
             ),
             icon: const Icon(Icons.logout),
@@ -187,8 +188,7 @@ class _ProfileOption extends StatelessWidget {
         trailing: const Icon(Icons.arrow_forward_ios,
             size: 14, color: AppColors.textSecondaryLight),
         onTap: onTap,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
     ).animate().fadeIn().slideX(begin: 0.1, end: 0);
   }

@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../ingredients/ingredient_model.dart';
 import '../../services/remote_config_service.dart';
@@ -61,19 +61,39 @@ Return only the JSON array, nothing else.
     final apiKey = _config.geminiApiKey;
     if (apiKey.isEmpty) throw Exception('Gemini API key not configured');
 
-    final model = GenerativeModel(
-      model: 'gemini-1.5-flash',
-      apiKey: apiKey,
+    final url = Uri.parse(
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=$apiKey',
     );
 
-    final prompt = _buildPrompt(
-      ingredients: ingredients,
-      dietaryType: dietaryType,
-      allergies: allergies,
+    final body = jsonEncode({
+      "contents": [
+        {
+          "parts": [
+            {
+              "text": _buildPrompt(
+                ingredients: ingredients,
+                dietaryType: dietaryType,
+                allergies: allergies,
+              )
+            }
+          ]
+        }
+      ]
+    });
+
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: body,
     );
 
-    final response = await model.generateContent([Content.text(prompt)]);
-    final text = response.text ?? '';
+    if (response.statusCode != 200) {
+      debugPrint('Gemini error: ${response.body}');
+      throw Exception('Gemini API error: ${response.statusCode}');
+    }
+
+    final decoded = jsonDecode(response.body);
+    final text = decoded['candidates'][0]['content']['parts'][0]['text'] as String;
 
     debugPrint('Gemini response: $text');
 

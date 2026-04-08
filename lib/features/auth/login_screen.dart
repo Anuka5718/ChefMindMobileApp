@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/constants/app_colors.dart';
 import '../../shared/widgets/custom_button.dart';
-import 'auth_provider.dart';
+import 'package:chefmind/features/auth/auth_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -37,6 +37,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         _emailCtrl.text.trim(),
         _passwordCtrl.text.trim(),
       );
+      // ✅ Manually navigate after successful login
+      if (mounted) context.go('/home');
     } catch (e) {
       setState(() => _error = 'Invalid email or password. Please try again.');
     } finally {
