@@ -24,9 +24,6 @@ dependencies:
   # Navigation
   go_router: ^14.2.0
 
-  # AI - Gemini
-  google_generative_ai: ^0.4.3
-
   # UI & Animations
   flutter_animate: ^4.5.0
   google_fonts: ^6.2.1
@@ -43,12 +40,20 @@ dependencies:
 
   # Image
   cached_network_image: ^3.3.1
+  http: ^1.6.0
+  image_picker: ^1.1.2
+
+  # Utilities
+  timezone: ^0.9.4            
+  permission_handler: ^11.3.1
+  google_generative_ai: ^0.4.7
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
   build_runner: ^2.4.9
+  flutter_launcher_icons: ^0.14.1
 
 flutter:
   uses-material-design: true
@@ -61,3 +66,11 @@ flutter:
         - asset: assets/fonts/Poppins-Bold.ttf
         - asset: assets/fonts/Poppins-SemiBold.ttf
         - asset: assets/fonts/Poppins-Medium.ttf
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/logo.png"
+  min_sdk_android: 21
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/images/logo.png"

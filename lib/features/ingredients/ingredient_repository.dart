@@ -16,9 +16,20 @@ class IngredientRepository {
     return _collection
         .orderBy('expiryDate')
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => Ingredient.fromFirestore(doc.data(), doc.id))
-            .toList());
+        .map((snapshot) {
+      final ingredients = <Ingredient>[];
+      final now = DateTime.now();
+      for (var doc in snapshot.docs) {
+        final ingredient = Ingredient.fromFirestore(doc.data(), doc.id);
+        if (ingredient.expiryDate.isBefore(now)) {
+          // Temporarily skip it in output and delete it from Firebase
+          doc.reference.delete();
+        } else {
+          ingredients.add(ingredient);
+        }
+      }
+      return ingredients;
+    });
   }
 
   Future<void> addIngredient(Ingredient ingredient) async {

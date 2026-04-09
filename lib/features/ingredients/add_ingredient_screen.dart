@@ -7,6 +7,7 @@ import '../../core/constants/app_colors.dart';
 import '../../shared/widgets/custom_button.dart';
 import 'ingredient_model.dart';
 import 'ingredient_repository.dart';
+import '../../services/notification_service.dart';
 
 class AddIngredientScreen extends ConsumerStatefulWidget {
   const AddIngredientScreen({super.key});
@@ -67,7 +68,14 @@ class _AddIngredientScreenState extends ConsumerState<AddIngredientScreen> {
       expiryDate: _expiry,
     );
     await ref.read(ingredientRepositoryProvider).addIngredient(ingredient);
-    if (mounted) context.pop();
+    await ref.read(notificationServiceProvider).scheduleExpiryNotification(
+    id: ingredient.name.hashCode.abs(),
+    ingredientName: ingredient.name,
+    expiryDate: ingredient.expiryDate,
+  );
+
+  if (mounted) context.pop();
+  setState(() => _saving = false);
   }
 
   @override
