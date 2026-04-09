@@ -343,6 +343,62 @@ class _DashboardTab extends ConsumerWidget {
                 ],
               ).animate().fadeIn(delay: 200.ms),
 
+              const SizedBox(height: 12),
+
+              // Weekly Calorie Target Block
+              Builder(
+                builder: (context) {
+                  final target = ref.watch(userProfileProvider).valueOrNull?['weeklyCalorieTarget'] as int?;
+                  return Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppColors.accent.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: AppColors.accent.withOpacity(0.2)),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.local_fire_department, color: AppColors.accent),
+                            const SizedBox(width: 12),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Weekly Calorie Target',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.textPrimaryLight,
+                                  ),
+                                ),
+                                Text(
+                                  'Resets every week',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 12,
+                                    color: AppColors.textSecondaryLight,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        Text(
+                          target != null ? '$target kcal' : 'Not Set',
+                          style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.accent,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ).animate().fadeIn(delay: 250.ms);
+                }
+              ),
+
               const SizedBox(height: 24),
 
               // Use It Now section
@@ -494,6 +550,7 @@ class _WelcomeCard extends ConsumerWidget {
     final username = userProfile.valueOrNull?['username'] as String? ??
         FirebaseAuth.instance.currentUser?.displayName ??
         'Chef';
+    final email = FirebaseAuth.instance.currentUser?.email ?? '';
 
     return Container(
       padding: const EdgeInsets.all(20),

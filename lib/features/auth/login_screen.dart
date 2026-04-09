@@ -46,6 +46,39 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
   }
 
+  Future<void> _forgotPassword() async {
+    final email = _emailCtrl.text.trim();
+    if (email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Please enter your email address first to reset password.',
+            style: GoogleFonts.poppins(),
+          ),
+          backgroundColor: AppColors.expiryAmber,
+        ),
+      );
+      return;
+    }
+
+    try {
+      await ref.read(authServiceProvider).sendPasswordResetEmail(email);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Password reset email sent!',
+              style: GoogleFonts.poppins(),
+            ),
+            backgroundColor: AppColors.expiryGreen,
+          ),
+        );
+      }
+    } catch (e) {
+      setState(() => _error = 'Failed to send reset email. Please check your email and try again.');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -163,7 +196,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     validator: (v) => v == null || v.isEmpty ? 'Enter your password' : null,
                   ).animate().fadeIn(delay: 600.ms).slideY(begin: 0.2, end: 0),
 
-                  const SizedBox(height: 24),
+                  // Forgot Password
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: _forgotPassword,
+                      child: Text(
+                        'Forgot Password?',
+                        style: GoogleFonts.poppins(
+                          color: AppColors.primary,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ).animate().fadeIn(delay: 650.ms),
+
+                  const SizedBox(height: 12),
 
                   // Error message
                   if (_error != null)

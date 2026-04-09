@@ -15,7 +15,7 @@ class RemoteConfigService {
 
     // Default value in case fetch fails
     await _rc.setDefaults({
-      'gemini_api_key': '',
+      'chefmind_api': '',
     });
 
     try {
@@ -27,7 +27,7 @@ class RemoteConfigService {
   }
 
   // Returns the Gemini API key
-  String get geminiApiKey => _rc.getString('gemini_api_key');
+  String get geminiApiKey => _rc.getString('chefmind_api');
 }
 
 final remoteConfigServiceProvider = Provider<RemoteConfigService>(

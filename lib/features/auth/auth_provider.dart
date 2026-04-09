@@ -37,7 +37,6 @@ class AuthService {
       'username': username,
       'dietaryType': dietaryType,
       'allergies': allergies,
-      'calorieTarget': 2000,
       'createdAt': FieldValue.serverTimestamp(),
     });
   }
@@ -47,6 +46,10 @@ class AuthService {
       email: email,
       password: password,
     );
+  }
+
+  Future<void> sendPasswordResetEmail(String email) async {
+    await _auth.sendPasswordResetEmail(email: email);
   }
 
   Future<void> logout() async {
@@ -69,6 +72,16 @@ class AuthService {
     await _db.collection('users').doc(user.uid).update(
       {'username': username},
     );
+  }
+
+  Future<void> updateDietaryPreferences(String dietaryType, List<String> allergies, int? weeklyCalorieTarget) async {
+    final user = _auth.currentUser;
+    if (user == null) return;
+    await _db.collection('users').doc(user.uid).update({
+      'dietaryType': dietaryType,
+      'allergies': allergies,
+      if (weeklyCalorieTarget != null) 'weeklyCalorieTarget': weeklyCalorieTarget else 'weeklyCalorieTarget': FieldValue.delete(),
+    });
   }
 }
 

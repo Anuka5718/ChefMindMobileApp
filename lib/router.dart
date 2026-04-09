@@ -14,6 +14,7 @@ import 'features/profile/profile_screen.dart';
 import 'features/settings/settings_screen.dart';
 import 'features/profile/edit_profile_screen.dart';
 import 'features/profile/notifications_screen.dart';
+import 'features/profile/dietary_preferences_screen.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/splash',
@@ -55,6 +56,10 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/notifications',
       builder: (_, __) => const NotificationsScreen(),
+      ),
+    GoRoute(
+      path: '/dietary-preferences',
+      builder: (_, __) => const DietaryPreferencesScreen(),
       ),
   ],
 );

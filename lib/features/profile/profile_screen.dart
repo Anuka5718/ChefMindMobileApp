@@ -15,13 +15,17 @@ class ProfileScreen extends ConsumerStatefulWidget {
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   Future<void> _logout() async {
-  await ref.read(authServiceProvider).logout();
-}
+    await ref.read(authServiceProvider).logout();
+  }
 
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authStateProvider);
     final user = authState.valueOrNull;
+
+    // ✅ Defined here from the Firebase user object
+    final username = user?.displayName ?? 'ChefMind User';
+    final email = user?.email ?? '';
 
     return Scaffold(
       appBar: AppBar(
@@ -43,6 +47,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           Center(
             child: Column(
               children: [
+                // Show profile photo if available, otherwise show default icon
                 Container(
                   width: 90,
                   height: 90,
@@ -59,14 +64,30 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       ),
                     ],
                   ),
-                  child: const Icon(Icons.person, size: 44, color: Colors.white),
+                  child: user?.photoURL != null && user!.photoURL!.isNotEmpty
+                      ? ClipOval(
+                          child: Image.network(
+                            user.photoURL!,
+                            fit: BoxFit.cover,
+                            width: 90,
+                            height: 90,
+                          ),
+                        )
+                      : const Icon(Icons.person, size: 44, color: Colors.white),
                 ),
                 const SizedBox(height: 14),
                 Text(
-                  user?.email ?? 'Guest',
+                  username,
                   style: GoogleFonts.poppins(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  email,
+                  style: GoogleFonts.poppins(
+                    fontSize: 13,
+                    color: AppColors.textSecondaryLight,
                   ),
                 ),
                 Text(
@@ -92,7 +113,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             icon: Icons.restaurant_menu,
             title: 'Dietary Preferences',
             subtitle: 'Manage dietary type and allergies',
-            onTap: () {},
+            onTap: () => context.push('/dietary-preferences'),
           ),
           _ProfileOption(
             icon: Icons.notifications_outlined,
