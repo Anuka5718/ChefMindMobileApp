@@ -37,27 +37,78 @@ class SettingsScreen extends ConsumerWidget {
             subtitle: isDark ? 'Currently dark' : 'Currently light',
             trailing: Switch(
               value: isDark,
-              onChanged: (_) => ref.read(themeProvider.notifier).toggleTheme(),
+              onChanged: (_) =>
+                  ref.read(themeProvider.notifier).toggleTheme(),
               activeColor: AppColors.primary,
             ),
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
 
-          _SectionHeader(title: 'About'),
+          _SectionHeader(title: 'About ChefMind'),
 
+          // App info
           _SettingsTile(
             icon: Icons.info_outline,
             title: 'App Version',
-            subtitle: '1.0.0',
+            subtitle: '1.0.0 — Built with Flutter + Firebase + Gemini AI',
             trailing: null,
           ),
-          _SettingsTile(
-            icon: Icons.code,
-            title: 'Built with',
-            subtitle: 'Flutter + Firebase + Gemini AI',
-            trailing: null,
+
+          const SizedBox(height: 20),
+
+          _SectionHeader(title: 'Development Team'),
+
+          // Team members
+          _TeamMemberTile(
+            name: 'Chamath Wickramasinghe',
+            studentId: '10965639',
+            contribution: 'Development & Firebase Integration',
+            color: AppColors.primary,
           ),
+          _TeamMemberTile(
+            name: 'Hiranya Piumath',
+            studentId: '10965632',
+            contribution: 'Firebase & Authentication',
+            color: AppColors.accent,
+          ),
+          _TeamMemberTile(
+            name: 'Lakshan Wishwajith',
+            studentId: '10965635',
+            contribution: 'UI/UX Design & Testing',
+            color: const Color(0xFF6C63FF),
+          ),
+          _TeamMemberTile(
+            name: 'Sithika Dinujaya',
+            studentId: '10965638',
+            contribution: 'Frontend & Testing',
+            color: const Color(0xFF00BCD4),
+          ),
+
+          const SizedBox(height: 20),
+
+          // Made with love
+          Center(
+            child: Text(
+              'Made with ❤️ by Group 2 • PUSL2023',
+              style: GoogleFonts.poppins(
+                fontSize: 12,
+                color: AppColors.textSecondaryLight,
+              ),
+            ),
+          ).animate().fadeIn(delay: 500.ms),
+
+          const SizedBox(height: 8),
+
+          Center(
+            child: Text(
+              'Plymouth International College • 2026',
+              style: GoogleFonts.poppins(
+                fontSize: 12,
+                color: AppColors.textSecondaryLight,
+              ),
+            ),
+          ).animate().fadeIn(delay: 600.ms),
         ],
       ),
     );
@@ -137,6 +188,91 @@ class _SettingsTile extends StatelessWidget {
         trailing: trailing,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14)),
+      ),
+    ).animate().fadeIn().slideX(begin: 0.1, end: 0);
+  }
+}
+
+class _TeamMemberTile extends StatelessWidget {
+  final String name;
+  final String studentId;
+  final String contribution;
+  final Color color;
+
+  const _TeamMemberTile({
+    required this.name,
+    required this.studentId,
+    required this.contribution,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardTheme.color,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: Theme.of(context).brightness == Brightness.dark
+              ? const Color(0xFF30363D)
+              : Colors.grey.shade100,
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              shape: BoxShape.circle,
+              border: Border.all(
+                  color: color.withOpacity(0.3), width: 2),
+            ),
+            child: Center(
+              child: Text(
+                name[0].toUpperCase(),
+                style: GoogleFonts.poppins(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: color,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  name,
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                  ),
+                ),
+                Text(
+                  studentId,
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    color: color,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                Text(
+                  contribution,
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    color: AppColors.textSecondaryLight,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     ).animate().fadeIn().slideX(begin: 0.1, end: 0);
   }

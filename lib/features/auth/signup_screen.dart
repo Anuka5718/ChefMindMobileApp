@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/constants/app_colors.dart';
 import '../../shared/widgets/custom_button.dart';
-import 'auth_provider.dart';
+import 'package:chefmind/features/auth/auth_provider.dart';
 
 class SignUpScreen extends ConsumerStatefulWidget {
   const SignUpScreen({super.key});
@@ -19,6 +19,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
   final _confirmCtrl = TextEditingController();
+  final _usernameCtrl = TextEditingController();
   bool _loading = false;
   bool _obscurePassword = true;
   
@@ -33,6 +34,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     _emailCtrl.dispose();
     _passwordCtrl.dispose();
     _confirmCtrl.dispose();
+    _usernameCtrl.dispose();
     super.dispose();
   }
 
@@ -47,9 +49,12 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
       await ref.read(authServiceProvider).signUp(
         _emailCtrl.text.trim(),
         _passwordCtrl.text.trim(),
+        username: _usernameCtrl.text.trim(),
         dietaryType: _dietaryType,
         allergies: _allergies,
       );
+      // ✅ Manually navigate after successful signup
+      if (mounted) context.go('/home');
     } catch (e) {
       setState(() => _error = e.toString());
     } finally {
@@ -105,6 +110,18 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   ).animate().fadeIn(delay: 200.ms),
 
                   const SizedBox(height: 28),
+
+                  // Username
+                  TextFormField(
+                    controller: _usernameCtrl,
+                    decoration: const InputDecoration(
+                      labelText: 'Username',
+                      prefixIcon: Icon(Icons.person_outline, color: AppColors.primary),
+                    ),
+                    validator: (v) => v == null || v.isEmpty ? 'Enter a username' : null,
+                  ).animate().fadeIn(delay: 300.ms).slideY(begin: 0.2, end: 0),
+
+                  const SizedBox(height: 14),
 
                   // Email
                   TextFormField(

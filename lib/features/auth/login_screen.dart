@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/constants/app_colors.dart';
 import '../../shared/widgets/custom_button.dart';
-import 'auth_provider.dart';
+import 'package:chefmind/features/auth/auth_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -37,10 +37,45 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         _emailCtrl.text.trim(),
         _passwordCtrl.text.trim(),
       );
+      // ✅ Manually navigate after successful login
+      if (mounted) context.go('/home');
     } catch (e) {
       setState(() => _error = 'Invalid email or password. Please try again.');
     } finally {
       setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _forgotPassword() async {
+    final email = _emailCtrl.text.trim();
+    if (email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Please enter your email address first to reset password.',
+            style: GoogleFonts.poppins(),
+          ),
+          backgroundColor: AppColors.expiryAmber,
+        ),
+      );
+      return;
+    }
+
+    try {
+      await ref.read(authServiceProvider).sendPasswordResetEmail(email);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Password reset email sent!',
+              style: GoogleFonts.poppins(),
+            ),
+            backgroundColor: AppColors.expiryGreen,
+          ),
+        );
+      }
+    } catch (e) {
+      setState(() => _error = 'Failed to send reset email. Please check your email and try again.');
     }
   }
 
@@ -161,7 +196,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     validator: (v) => v == null || v.isEmpty ? 'Enter your password' : null,
                   ).animate().fadeIn(delay: 600.ms).slideY(begin: 0.2, end: 0),
 
-                  const SizedBox(height: 24),
+                  // Forgot Password
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: _forgotPassword,
+                      child: Text(
+                        'Forgot Password?',
+                        style: GoogleFonts.poppins(
+                          color: AppColors.primary,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ).animate().fadeIn(delay: 650.ms),
+
+                  const SizedBox(height: 12),
 
                   // Error message
                   if (_error != null)

@@ -3,8 +3,9 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../core/constants/app_colors.dart';
-import '../auth/auth_provider.dart';
+import 'package:chefmind/features/auth/auth_provider.dart';
 import '../ingredients/ingredient_model.dart';
 import '../ingredients/ingredient_repository.dart';
 import '../ingredients/ingredients_screen.dart';
@@ -20,6 +21,31 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   int _currentIndex = 0;
+  late final PageController _pageController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: 0);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _onPageChanged(int index) {
+    setState(() => _currentIndex = index);
+  }
+
+  void _onNavTap(int index) {
+    _pageController.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
 
   final List<Widget> _screens = const [
     _DashboardTab(),
@@ -32,9 +58,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: _buildDrawer(context),
-      body: AnimatedSwitcher(
-        duration: 300.ms,
-        child: _screens[_currentIndex],
+      body: PageView(
+        controller: _pageController,
+        onPageChanged: _onPageChanged,
+        physics: const BouncingScrollPhysics(),
+        children: _screens,
       ),
       bottomNavigationBar: _buildBottomNav(),
     );
@@ -104,7 +132,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               label: 'Profile',
               onTap: () {
                 Navigator.pop(context);
-                setState(() => _currentIndex = 3);
+                _onNavTap(3);
               },
             ),
             _DrawerItem(
@@ -136,7 +164,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               onTap: () async {
                 Navigator.pop(context);
                 await ref.read(authServiceProvider).logout();
-                if (context.mounted) context.go('/login');
               },
             ),
             const SizedBox(height: 16),
@@ -189,7 +216,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
       child: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTap: (i) => setState(() => _currentIndex = i),
+        onTap: _onNavTap,        
         type: BottomNavigationBarType.fixed,
         selectedLabelStyle: GoogleFonts.poppins(
           fontSize: 11,
@@ -279,7 +306,7 @@ class _DashboardTab extends ConsumerWidget {
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
             children: [
               // Welcome card
-              _WelcomeCard().animate().fadeIn().slideY(begin: -0.1, end: 0),
+              const _WelcomeCard().animate().fadeIn().slideY(begin: -0.1, end: 0),
 
               const SizedBox(height: 20),
 
@@ -315,6 +342,62 @@ class _DashboardTab extends ConsumerWidget {
                   ),
                 ],
               ).animate().fadeIn(delay: 200.ms),
+
+              const SizedBox(height: 12),
+
+              // Weekly Calorie Target Block
+              Builder(
+                builder: (context) {
+                  final target = ref.watch(userProfileProvider).valueOrNull?['weeklyCalorieTarget'] as int?;
+                  return Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppColors.accent.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: AppColors.accent.withOpacity(0.2)),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.local_fire_department, color: AppColors.accent),
+                            const SizedBox(width: 12),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Weekly Calorie Target',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.textPrimaryLight,
+                                  ),
+                                ),
+                                Text(
+                                  'Resets every week',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 12,
+                                    color: AppColors.textSecondaryLight,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        Text(
+                          target != null ? '$target kcal' : 'Not Set',
+                          style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.accent,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ).animate().fadeIn(delay: 250.ms);
+                }
+              ),
 
               const SizedBox(height: 24),
 
@@ -451,15 +534,23 @@ class _DashboardTab extends ConsumerWidget {
   }
 }
 
-class _WelcomeCard extends StatelessWidget {
+class _WelcomeCard extends ConsumerWidget {
+  const _WelcomeCard();
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final userProfile = ref.watch(userProfileProvider);
     final hour = DateTime.now().hour;
     final greeting = hour < 12
         ? 'Good Morning'
         : hour < 17
             ? 'Good Afternoon'
             : 'Good Evening';
+
+    final username = userProfile.valueOrNull?['username'] as String? ??
+        FirebaseAuth.instance.currentUser?.displayName ??
+        'Chef';
+    final email = FirebaseAuth.instance.currentUser?.email ?? '';
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -485,20 +576,26 @@ class _WelcomeCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  greeting + '! 👋',
+                  '$greeting,',
                   style: GoogleFonts.poppins(
                     color: Colors.white.withOpacity(0.9),
                     fontSize: 14,
                   ),
                 ),
-                const SizedBox(height: 4),
                 Text(
-                  "What's cooking\ntoday?",
+                  username,
                   style: GoogleFonts.poppins(
                     color: Colors.white,
-                    fontSize: 20,
+                    fontSize: 22,
                     fontWeight: FontWeight.w700,
-                    height: 1.2,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  "What's cooking today?",
+                  style: GoogleFonts.poppins(
+                    color: Colors.white.withOpacity(0.8),
+                    fontSize: 13,
                   ),
                 ),
                 const SizedBox(height: 12),
